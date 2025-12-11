@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简约起始页 | 驱动&常用链接版</title>
+  <style>
+    /* 全局重置 - 消除默认样式干扰 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Microsoft Yahei', 'PingFang SC', sans-serif;
+    }
+
+    /* 页面基础布局 */
+    body {
+      min-height: 100vh;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      -webkit-font-smoothing: antialiased;
+      display: grid;
+      grid-template-rows: 80px 1fr 80px;
+      padding: 10px 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    /* 背景层 - 关键修改：替换为指定的网络图片URL */
+    #bg {
+      position: fixed;
+      inset: 0;
+      background: url("https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/208e8364d31d4a67b95005c6108ac4ce.jpg~tplv-a9rns2rl98-image.png?rcl=2025121113430964312BB3216CC1820936&rk3s=8e244e95&rrcfp=dafada99&x-expires=2081655789&x-signature=EYNJaLqyRMOsax44Oky55TU665A%3D") center/cover no-repeat;
+      z-index: -1;
+      filter: blur(0) brightness(0.9);
+      transition: filter 0.7s ease, transform 0.7s ease;
+    }
+
+    body.search-focus #bg {
+      filter: blur(6px) brightness(0.85);
+      transform: scale(1.01);
+    }
+
+    /* 毛玻璃通用样式 */
+    .glass {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 8px;
+    }
+
+    /* 顶部区域 */
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 2vw;
+    }
+
+    .time-display {
+      font-size: 20px;
+      font-weight: 300;
+      padding: 8px 16px;
+    }
+
+    /* 核心区域 */
+    .core {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px 2vw;
+    }
+
+    /* 搜索栏 - 关键修改：增大margin-bottom数值，拉远与下方链接的距离 */
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+      height: 52px;
+      border-radius: 26px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 60px; /* 原30px，现改为60px，可按需调整 */
+      transition: background 0.2s ease;
+    }
+
+    /* 引擎选择器 */
+    .engine-selector {
+      width: 80px;
+      height: 36px;
+      position: relative;
+    }
+
+    .engine-btn {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      color: #333333;
+      font-size: 14px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    .engine-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 80px;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+      display: none;
+    }
+
+    .engine-option {
+      width: 100%;
+      height: 36px;
+      color: #333333;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .engine-option:hover {
+      background-color: #f8f8f8;
+    }
+
+    .option-text {
+      width: 30px;
+      text-align: left;
+    }
+
+    .option-shortcut {
+      width: 30px;
+      color: #999999;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    /* 搜索输入框 */
+    .search-input {
+      flex: 1;
+      height: 36px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 16px;
+      padding: 0 15px;
+      min-width: 200px;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* 搜索按钮 */
+    .search-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .search-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 快捷导航网格 - 响应式适配 */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 15px;
+      max-width: 90vw;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    /* 更多链接网格 */
+    .more-nav-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 15px;
+      max-width: 90vw;
+      justify-content: center;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .more-nav-grid.show {
+      display: grid;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 导航卡片 */
+    .nav-card {
+      width: 110px;
+      height: 110px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      text-align: center;
+      padding: 8px;
+      margin: 0 auto;
+    }
+
+    .nav-card:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .nav-card.more-toggle {
+      cursor: pointer;
+    }
+
+    .nav-card i {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .nav-card span {
+      font-size: 12px;
+      line-height: 1.2;
+      word-break: break-all;
+    }
+
+    /* 底部区域 */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2vw;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .bg-change-btn {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border: none;
+      color: #fff;
+      background: transparent;
+    }
+
+    .bg-change-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .bg-change-btn input {
+      display: none;
+    }
+
+    .copyright {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .nav-grid, .more-nav-grid {
+        grid-template-columns: repeat(3, 110px);
+      }
+      .search-bar {
+        width: 90%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-grid, .more-nav-grid {
+        grid-template-columns: repeat(2, 110px);
+      }
+      .time-display {
+        font-size: 16px;
+      }
+      .search-input {
+        min-width: 150px;
+        font-size: 14px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  <!-- 背景层 -->
+  <div id="bg"></div>
+
+  <!-- 顶部：时间 -->
+  <div class="header">
+    <div class="time-display glass" id="time">00:00:00</div>
+  </div>
+
+  <!-- 核心区域 -->
+  <div class="core">
+    <!-- 搜索栏 -->
+    <div class="search-bar glass">
+      <!-- 引擎选择器 -->
+      <div class="engine-selector">
+        <button class="engine-btn" id="engineBtn">
+          <span>百度</span>
+          <i class="fa fa-chevron-down"></i>
+        </button>
+        <div class="engine-dropdown" id="engineDropdown">
+          <div class="engine-option" data-url="https://www.baidu.com/s?wd=" data-name="百度">
+            <span class="option-text">百度</span>
+            <span class="option-shortcut">Alt+1</span>
+          </div>
+          <div class="engine-option" data-url="https://cn.bing.com/search?q=" data-name="必应">
+            <span class="option-text">必应</span>
+            <span class="option-shortcut">Alt+2</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 搜索输入框 -->
+      <input type="text" class="search-input" id="searchInput" placeholder="输入关键词搜索...">
+
+      <!-- 搜索按钮 -->
+      <button class="search-btn" id="searchBtn">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+
+    <!-- 常用导航网格（保留的链接） -->
+    <div class="nav-grid">
+      <!-- 常用娱乐链接 -->
+      <a href="https://store.steampowered.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-steam"></i>
+        <span>Steam</span>
+      </a>
+      <a href="https://www.wegame.com.cn/" target="_blank" class="nav-card glass">
+        <i class="fa fa-gamepad"></i>
+        <span>WeGame</span>
+      </a>
+      <a href="https://www.douyin.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-music"></i>
+        <span>抖音官网</span>
+      </a>
+      <a href="https://www.yy.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-microphone"></i>
+        <span>YY语音</span>
+      </a>
+      <a href="https://music.163.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-headphones"></i>
+        <span>网易云音乐</span>
+      </a>
+      
+      <!-- 常用驱动链接 -->
+      <a href="https://www.nvidia.cn/Download/index.aspx?lang=cn" target="_blank" class="nav-card glass">
+        <i class="fa fa-desktop"></i>
+        <span>N卡驱动</span>
+      </a>
+      <a href="https://www.amd.com/zh-hans/support" target="_blank" class="nav-card glass">
+        <i class="fa fa-desktop"></i>
+        <span>AMD显卡驱动</span>
+      </a>
+      <a href="https://www.logitechg.com/zh-cn/software/ghub" target="_blank" class="nav-card glass">
+        <i class="fa fa-mouse-pointer"></i>
+        <span>罗技鼠标驱动</span>
+      </a>
+      <a href="https://cn.razerzone.com/synapse-4" target="_blank" class="nav-card glass">
+        <i class="fa fa-bolt"></i>
+        <span>雷蛇驱动</span>
+      </a>
+      <a href="https://www.todesk.com/download.html" target="_blank" class="nav-card glass">
+        <i class="fa fa-download"></i>
+        <span>ToDesk下载</span>
+      </a>
+
+      <!-- 新增微信/QQ下载官网 -->
+      <a href="https://pc.weixin.qq.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-wechat"></i>
+        <span>微信下载官网</span>
+      </a>
+      <a href="https://im.qq.com/download/" target="_blank" class="nav-card glass">
+        <i class="fa fa-qq"></i>
+        <span>QQ下载官网</span>
+      </a>
+
+      <!-- 更多链接切换按钮 -->
+      <div class="nav-card glass more-toggle" id="moreToggle">
+        <i class="fa fa-plus" id="moreIcon"></i>
+        <span>更多链接</span>
+      </div>
+    </div>
+
+    <!-- 更多导航网格（隐藏的链接）- 已删除LogicHub -->
+    <div class="more-nav-grid" id="moreNavGrid">
+      <!-- 品牌驱动 -->
+      <a href="https://www.dell.com/support/home/zh-cn" target="_blank" class="nav-card glass">
+        <i class="fa fa-laptop"></i>
+        <span>戴尔驱动</span>
+      </a>
+      <a href="https://www.asus.com.cn/support/Download-Center/" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>华硕驱动</span>
+      </a>
+      <a href="https://newsupport.lenovo.com.cn/" target="_blank" class="nav-card glass">
+        <i class="fa fa-desktop"></i>
+        <span>联想驱动</span>
+      </a>
+      <a href="https://support.hp.com/cn-zh/drivers" target="_blank" class="nav-card glass">
+        <i class="fa fa-laptop"></i>
+        <span>惠普驱动</span>
+      </a>
+      <a href="https://www.msi.cn/support/download/" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>微星驱动</span>
+      </a>
+      <a href="https://www.gigabyte.cn/Support" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>技嘉驱动</span>
+      </a>
+      <a href="https://www.colorful.cn/home/download" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>七彩虹驱动</span>
+      </a>
+      <a href="https://consumer.huawei.com/cn/support/pc-manager/" target="_blank" class="nav-card glass">
+        <i class="fa fa-mobile"></i>
+        <span>华为管家</span>
+      </a>
+      <a href="https://www.mi.com/service/notebook/drivers" target="_blank" class="nav-card glass">
+        <i class="fa fa-laptop"></i>
+        <span>小米驱动</span>
+      </a>
+      <a href="http://www.mechrevo.com/service/" target="_blank" class="nav-card glass">
+        <i class="fa fa-gamepad"></i>
+        <span>机械革命</span>
+      </a>
+      <a href="https://legionzone.lenovo.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-gamepad"></i>
+        <span>LegionZone</span>
+      </a>
+      <a href="https://www.thunderobot.com/driver" target="_blank" class="nav-card glass">
+        <i class="fa fa-laptop"></i>
+        <span>雷神笔记本</span>
+      </a>
+      <a href="https://www.firebat.com.cn/index/serve/drive" target="_blank" class="nav-card glass">
+        <i class="fa fa-laptop"></i>
+        <span>火影笔记本</span>
+      </a>
+      <a href="https://www.gigabyte.cn/Consumer/Software/GIGABYTE-Control-Center/" target="_blank" class="nav-card glass">
+        <i class="fa fa-lightbulb-o"></i>
+        <span>GCC下载</span>
+      </a>
+      <a href="https://www.colorful.cn/iGameCenter/" target="_blank" class="nav-card glass">
+        <i class="fa fa-gamepad"></i>
+        <span>iGameCenter</span>
+      </a>
+      <a href="https://www.msi.com/Landing/afterburner/graphics-cards" target="_blank" class="nav-card glass">
+        <i class="fa fa-rocket"></i>
+        <span>微星小飞机</span>
+      </a>
+      <a href="https://www.pccooler.cn/software/" target="_blank" class="nav-card glass">
+        <i class="fa fa-desktop"></i>
+        <span>超频3屏驱动</span>
+      </a>
+      <a href="https://myth.cool/cn/" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>Myth.Cool</span>
+      </a>
+      <a href="https://lianli-cn.com/lconnect3" target="_blank" class="nav-card glass">
+        <i class="fa fa-cogs"></i>
+        <span>联力控制器</span>
+      </a>
+      <a href="https://thermalright.com.cn/downloads" target="_blank" class="nav-card glass">
+        <i class="fa fa-tint"></i>
+        <span>利民水冷驱动</span>
+      </a>
+      <a href="https://cn.tryxzone.com/downloads/" target="_blank" class="nav-card glass">
+        <i class="fa fa-microchip"></i>
+        <span>TRYX创氪星系</span>
+      </a>
+      <a href="https://www.bilibili.com/" target="_blank" class="nav-card glass">
+        <i class="fa fa-video-camera"></i>
+        <span>B站</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 底部区域 -->
+  <div class="footer">
+    <!-- 更换背景按钮 -->
+    <label class="bg-change-btn glass">
+      <i class="fa fa-image"></i>
+      <span>更换背景</span>
+      <input type="file" id="bgUpload" accept="image/*">
+    </label>
+
+    <!-- 版权信息 -->
+    <div class="copyright">© 2025 简约起始页 | 驱动&常用链接版</div>
+  </div>
+
+  <script>
+    // 1. 实时时间更新
+    function updateTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // 2. 搜索引擎切换逻辑
+    const engineBtn = document.getElementById('engineBtn');
+    const engineDropdown = document.getElementById('engineDropdown');
+    const engineOptions = document.querySelectorAll('.engine-option');
+    let currentEngineUrl = 'https://www.baidu.com/s?wd=';
+
+    // 展开/收起下拉菜单
+    engineBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      engineDropdown.style.display = engineDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // 点击外部收起菜单
+    document.addEventListener('click', () => {
+      engineDropdown.style.display = 'none';
+    });
+
+    // 选择搜索引擎
+    engineOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const name = option.dataset.name;
+        currentEngineUrl = option.dataset.url;
+        
+        // 更新按钮显示
+        engineBtn.innerHTML = `<span>${name}</span><i class="fa fa-chevron-down"></i>`;
+        engineDropdown.style.display = 'none';
+      });
+    });
+
+    // 快捷键切换搜索引擎 (Alt+1/Alt+2)
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey) {
+        if (e.key === '1') engineOptions[0].click();
+        if (e.key === '2') engineOptions[1].click();
+      }
+    });
+
+    // 3. 搜索功能
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchBar = document.querySelector('.search-bar');
+
+    function doSearch() {
+      const keyword = searchInput.value.trim();
+      if (keyword) {
+        window.open(currentEngineUrl + encodeURIComponent(keyword), '_blank');
+        searchInput.value = '';
+      }
+    }
+
+    // 点击搜索按钮
+    searchBtn.addEventListener('click', doSearch);
+
+    // 回车搜索
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    // 搜索框聚焦/失焦效果
+    searchInput.addEventListener('focus', () => {
+      document.body.classList.add('search-focus');
+      searchBar.style.background = 'rgba(255, 255, 255, 0.18)';
+    });
+
+    searchInput.addEventListener('blur', () => {
+      document.body.classList.remove('search-focus');
+      searchBar.style.background = 'rgba(255, 255, 255, 0.12)';
+    });
+
+    // 4. 更换背景功能
+    const bgUpload = document.getElementById('bgUpload');
+    const bg = document.getElementById('bg');
+
+    // 加载本地存储的背景（优先使用本地存储，无则用默认网络图片）
+    window.addEventListener('load', () => {
+      const savedBg = localStorage.getItem('customBg');
+      if (savedBg) {
+        bg.style.backgroundImage = `url(${savedBg})`;
+      }
+    });
+
+    // 上传新背景
+    bgUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imgUrl = e.target.result;
+          bg.style.backgroundImage = `url(${imgUrl})`;
+          localStorage.setItem('customBg', imgUrl);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 5. 更多链接展开/收起逻辑
+    const moreToggle = document.getElementById('moreToggle');
+    const moreNavGrid = document.getElementById('moreNavGrid');
+    const moreIcon = document.getElementById('moreIcon');
+
+    moreToggle.addEventListener('click', () => {
+      // 切换显示状态
+      moreNavGrid.classList.toggle('show');
+      
+      // 切换图标（加号/减号）
+      if (moreNavGrid.classList.contains('show')) {
+        moreIcon.classList.remove('fa-plus');
+        moreIcon.classList.add('fa-minus');
+        moreToggle.querySelector('span').textContent = '收起链接';
+      } else {
+        moreIcon.classList.remove('fa-minus');
+        moreIcon.classList.add('fa-plus');
+        moreToggle.querySelector('span').textContent = '更多链接';
+      }
+    });
+  </script>
+</body>
+</html>
