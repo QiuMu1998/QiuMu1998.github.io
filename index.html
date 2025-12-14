@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简约起始页 | 驱动&常用链接版</title>
+  <style>
+    * {margin: 0;padding: 0;box-sizing: border-box;font-family: 'Microsoft Yahei', 'PingFang SC', sans-serif;}
+    body {min-height: 100vh;background-color: #1a1a1a;color: #ffffff;-webkit-font-smoothing: antialiased;display: grid;grid-template-rows: 80px 1fr 80px;padding: 10px 0;overflow-x: hidden;overflow-y: auto;}
+    #bg {position: fixed;inset: 0;background: url("https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/208e8364d31d4a67b95005c6108ac4ce.jpg~tplv-a9rns2rl98-image.png?rcl=2025121113430964312BB3216CC1820936&rk3s=8e244e95&rrcfp=dafada99&x-expires=2081655789&x-signature=EYNJaLqyRMOsax44Oky55TU665A%3D") center/cover no-repeat;z-index: -1;filter: blur(0) brightness(0.9);transition: filter 0.7s ease, transform 0.7s ease;}
+    body.search-focus #bg {filter: blur(6px) brightness(0.85);transform: scale(1.01);}
+    .glass {background: rgba(255, 255, 255, 0.12);backdrop-filter: blur(12px);-webkit-backdrop-filter: blur(12px);border-radius: 8px;}
+    .header {display: flex;justify-content: flex-end;align-items: center;padding: 0 2vw;}
+    .time-display {font-size: 20px;font-weight: 300;padding: 8px 16px;}
+    .core {display: flex;flex-direction: column;justify-content: flex-start;align-items: center;padding: 20px 2vw;}
+    .search-bar {width: 100%;max-width: 600px;height: 52px;border-radius: 26px;padding: 0 20px;display: flex;align-items: center;justify-content: space-between;margin-bottom: 60px;transition: background 0.2s ease;}
+    .engine-selector {width: 80px;height: 36px;position: relative;flex-shrink: 0;}
+    .engine-btn {width: 100%;height: 100%;background: #ffffff;color: #333333;font-size: 14px;border-radius: 6px;display: flex;justify-content: space-between;align-items: center;padding: 0 10px;cursor: pointer;border: none;outline: none;}
+    .engine-dropdown {position: absolute;top: calc(100% + 4px);left: 0;width: 80px;background: #ffffff;border-radius: 6px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);z-index: 999;display: none;}
+    .engine-option {width: 100%;height: 36px;color: #333333;font-size: 14px;display: flex;justify-content: space-between;align-items: center;padding: 0 10px;cursor: pointer;transition: background 0.2s ease;}
+    .engine-option:hover {background-color: #f8f8f8;}
+    .option-text {width: 30px;text-align: left;}
+    .option-shortcut {width: 30px;color: #999999;font-size: 12px;text-align: right;}
+    .search-input {flex: 1;height: 36px;background: transparent;border: none;outline: none;color: #ffffff;font-size: 16px;padding: 0 15px;min-width: 120px;}
+    .search-input::placeholder {color: rgba(255, 255, 255, 0.7);}
+    .search-btn {width: 36px;height: 36px;border-radius: 50%;background: transparent;border: none;color: #ffffff;display: flex;justify-content: center;align-items: center;cursor: pointer;transition: background-color 0.2s ease;flex-shrink: 0;}
+    .search-btn:hover {background-color: rgba(255, 255, 255, 0.2);}
+    .nav-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(clamp(80px, 18vw, 110px), 1fr));gap: clamp(10px, 2vw, 15px);max-width: 95vw;width: 100%;justify-content: center;margin-bottom: 20px;}
+    .more-nav-grid {display: none;grid-template-columns: repeat(auto-fit, minmax(clamp(80px, 18vw, 110px), 1fr));gap: clamp(10px, 2vw, 15px);max-width: 95vw;width: 100%;justify-content: center;margin-bottom: 20px;opacity: 0;transform: translateY(10px);transition: all 0.3s ease;}
+    .more-nav-grid.show {display: grid;opacity: 1;transform: translateY(0);}
+    .nav-card {width: 100%;max-width: 110px;min-width: 80px;height: clamp(80px, 20vw, 110px);border-radius: 12px;display: flex;flex-direction: column;justify-content: center;align-items: center;color: #ffffff;text-decoration: none;transition: all 0.3s ease;text-align: center;padding: 8px;margin: 0 auto;}
+    .nav-card:hover {background-color: rgba(255, 255, 255, 0.2);transform: scale(1.05);}
+    .nav-card.more-toggle {cursor: pointer;}
+    .nav-card i {font-size: clamp(20px, 5vw, 28px);margin-bottom: 8px;}
+    .nav-card span {font-size: clamp(10px, 2vw, 12px);line-height: 1.2;word-break: break-all;}
+    .footer {display: flex;justify-content: space-between;align-items: center;padding: 0 2vw;flex-wrap: wrap;gap: 10px;}
+    .bg-change-btn {padding: 8px 16px;display: flex;align-items: center;gap: 8px;cursor: pointer;transition: background-color 0.2s ease;border: none;color: #fff;background: transparent;}
+    .bg-change-btn:hover {background-color: rgba(255, 255, 255, 0.2);}
+    .bg-change-btn input {display: none;}
+    .copyright {color: rgba(255, 255, 255, 0.7);font-size: clamp(10px, 2vw, 12px);}
+    .sys-modal {position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;background: rgba(0, 0, 0, 0.5);display: flex;justify-content: center;align-items: center;z-index: 9999;opacity: 0;pointer-events: none;transition: opacity 0.3s ease;padding: 20px;}
+    .sys-modal.show {opacity: 1;pointer-events: auto;}
+    .modal-content {width: 100%;max-width: 400px;padding: clamp(20px, 5vw, 30px);border-radius: 16px;background: rgba(255, 255, 255, 0.15);backdrop-filter: blur(15px);-webkit-backdrop-filter: blur(15px);text-align: center;box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);border: 1px solid rgba(255, 255, 255, 0.1);}
+    .modal-title {font-size: clamp(16px, 4vw, 20px);margin-bottom: clamp(15px, 4vw, 20px);color: #fff;font-weight: 500;}
+    .modal-wechat {font-size: clamp(14px, 3.5vw, 18px);color: #fff;background: rgba(255, 255, 255, 0.1);padding: clamp(8px, 3vw, 12px) clamp(15px, 4vw, 20px);border-radius: 8px;margin-bottom: clamp(20px, 5vw, 25px);display: inline-block;font-weight: 600;word-break: break-all;}
+    .close-modal {padding: clamp(6px, 2vw, 8px) clamp(20px, 5vw, 24px);background: rgba(255, 255, 255, 0.2);color: #fff;border: none;border-radius: 8px;cursor: pointer;font-size: clamp(12px, 2.5vw, 14px);transition: background 0.2s ease;}
+    .close-modal:hover {background: rgba(255, 255, 255, 0.3);}
+    @media (max-width: 375px) {.search-bar {height: 48px;padding: 0 15px;margin-bottom: 40px;}.engine-selector {width: 70px;height: 32px;}.search-btn {width: 32px;height: 32px;}.time-display {font-size: 14px;padding: 6px 12px;}body {grid-template-rows: 60px 1fr 60px;}}
+    @media (max-width: 480px) {.nav-grid, .more-nav-grid {grid-template-columns: repeat(2, 1fr);}.search-input {font-size: 14px;}.footer {justify-content: center;text-align: center;}}
+    @media (min-width: 481px) and (max-width: 768px) {.nav-grid, .more-nav-grid {grid-template-columns: repeat(4, 1fr);}.search-bar {max-width: 500px;}}
+    @media (min-width: 769px) and (max-width: 1200px) {.nav-grid, .more-nav-grid {grid-template-columns: repeat(6, 1fr);max-width: 85vw;}}
+    @media (min-width: 1201px) {.nav-grid, .more-nav-grid {grid-template-columns: repeat(8, 1fr);max-width: 80vw;}.search-bar {max-width: 700px;}}
+  </style>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div class="header"><div class="time-display glass" id="time">00:00:00</div></div>
+  <div class="core">
+    <div class="search-bar glass">
+      <div class="engine-selector">
+        <button class="engine-btn" id="engineBtn"><span>百度</span><i class="fa fa-chevron-down"></i></button>
+        <div class="engine-dropdown" id="engineDropdown">
+          <div class="engine-option" data-url="https://www.baidu.com/s?wd=" data-name="百度"><span class="option-text">百度</span><span class="option-shortcut">Alt+1</span></div>
+          <div class="engine-option" data-url="https://cn.bing.com/search?q=" data-name="必应"><span class="option-text">必应</span><span class="option-shortcut">Alt+2</span></div>
+        </div>
+      </div>
+      <input type="text" class="search-input" id="searchInput" placeholder="输入关键词搜索...">
+      <button class="search-btn" id="searchBtn"><i class="fa fa-search"></i></button>
+    </div>
+    <div class="nav-grid">
+      <a href="https://store.steampowered.com/about/" target="_blank" class="nav-card glass"><i class="fa fa-steam"></i><span>Steam</span></a>
+      <a href="https://www.wegame.com.cn/" target="_blank" class="nav-card glass"><i class="fa fa-gamepad"></i><span>WeGame</span></a>
+      <a href="https://www.123865.com/s/eWjMjv-WdpFd" target="_blank" class="nav-card glass"><i class="fa fa-steam"></i><span>Steam备用下载</span></a>
+      <a href="https://www.123865.com/s/eWjMjv-CdpFd" target="_blank" class="nav-card glass"><i class="fa fa-gamepad"></i><span>WeGame备用下载</span></a>
+      <a href="https://www.douyin.com/" target="_blank" class="nav-card glass"><i class="fa fa-music"></i><span>抖音官网</span></a>
+      <a href="https://www.yy.com/pcyy/" target="_blank" class="nav-card glass"><i class="fa fa-microphone"></i><span>YY语音</span></a>
+      <a href="https://music.163.com/#/download" target="_blank" class="nav-card glass"><i class="fa fa-headphones"></i><span>网易云音乐</span></a>
+      <a href="https://www.nvidia.cn/Download/index.aspx?lang=cn" target="_blank" class="nav-card glass"><i class="fa fa-desktop"></i><span>N卡驱动</span></a>
+      <a href="https://www.amd.com/zh-hans/support" target="_blank" class="nav-card glass"><i class="fa fa-desktop"></i><span>AMD显卡驱动</span></a>
+      <a href="https://www.logitechg.com/zh-cn/software/ghub" target="_blank" class="nav-card glass"><i class="fa fa-mouse-pointer"></i><span>罗技鼠标驱动</span></a>
+      <a href="https://cn.razerzone.com/synapse-4" target="_blank" class="nav-card glass"><i class="fa fa-bolt"></i><span>雷蛇驱动</span></a>
+      <a href="https://www.todesk.com/download.html" target="_blank" class="nav-card glass"><i class="fa fa-download"></i><span>ToDesk下载</span></a>
+      <a href="https://pc.weixin.qq.com/" target="_blank" class="nav-card glass"><i class="fa fa-wechat"></i><span>微信下载官网</span></a>
+      <a href="https://im.qq.com/pcqq/index.shtml" target="_blank" class="nav-card glass"><i class="fa fa-qq"></i><span>QQ下载官网</span></a>
+      <a href="https://hyperx.com/pages/ngenuity" target="_blank" class="nav-card glass"><i class="fa fa-headphones"></i><span>飓风耳机驱动</span></a>
+      <a href="https://www.123865.com/s/eWjMjv-ndpFd" target="_blank" class="nav-card glass"><i class="fa fa-file-archive-o"></i><span>7Z解压</span></a>
+      <a href="https://www.123865.com/s/eWjMjv-2dpFd" target="_blank" class="nav-card glass"><i class="fa fa-desktop"></i><span>任务栏透明</span></a>
+      <a href="https://www.huorong.cn/person" target="_blank" class="nav-card glass"><i class="fa fa-shield"></i><span>火绒安全</span></a>
+      <div class="nav-card glass" id="sysRepairCard"><i class="fa fa-refresh"></i><span>重装系统</span></div>
+      <div class="nav-card glass more-toggle" id="moreToggle"><i class="fa fa-plus" id="moreIcon"></i><span>更多链接</span></div>
+    </div>
+    <div class="more-nav-grid" id="moreNavGrid">
+      <a href="https://www.dell.com/support/home/zh-cn" target="_blank" class="nav-card glass"><i class="fa fa-laptop"></i><span>戴尔驱动</span></a>
+      <a href="https://www.asus.com.cn/support/Download-Center/" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>华硕驱动</span></a>
+      <a href="https://newsupport.lenovo.com.cn/" target="_blank" class="nav-card glass"><i class="fa fa-desktop"></i><span>联想驱动</span></a>
+      <a href="https://support.hp.com/cn-zh/drivers" target="_blank" class="nav-card glass"><i class="fa fa-laptop"></i><span>惠普驱动</span></a>
+      <a href="https://www.msi.cn/support/download/" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>微星驱动</span></a>
+      <a href="https://www.gigabyte.cn/Support" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>技嘉驱动</span></a>
+      <a href="https://www.colorful.cn/home/download" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>七彩虹驱动</span></a>
+      <a href="https://consumer.huawei.com/cn/support/pc-manager/" target="_blank" class="nav-card glass"><i class="fa fa-mobile"></i><span>华为管家</span></a>
+      <a href="https://www.mi.com/service/notebook/drivers" target="_blank" class="nav-card glass"><i class="fa fa-laptop"></i><span>小米驱动</span></a>
+      <a href="http://www.mechrevo.com/service/" target="_blank" class="nav-card glass"><i class="fa fa-gamepad"></i><span>机械革命</span></a>
+      <a href="https://legionzone.lenovo.com/" target="_blank" class="nav-card glass"><i class="fa fa-gamepad"></i><span>LegionZone</span></a>
+      <a href="https://www.thunderobot.com/driver" target="_blank" class="nav-card glass"><i class="fa fa-laptop"></i><span>雷神笔记本</span></a>
+      <a href="https://www.firebat.com.cn/index/serve/drive" target="_blank" class="nav-card glass"><i class="fa fa-laptop"></i><span>火影笔记本</span></a>
+      <a href="https://www.gigabyte.cn/Consumer/Software/GIGABYTE-Control-Center/" target="_blank" class="nav-card glass"><i class="fa fa-lightbulb-o"></i><span>GCC下载</span></a>
+      <a href="https://www.colorful.cn/iGameCenter/" target="_blank" class="nav-card glass"><i class="fa fa-gamepad"></i><span>iGameCenter</span></a>
+      <a href="https://www.msi.com/Landing/afterburner/graphics-cards" target="_blank" class="nav-card glass"><i class="fa fa-rocket"></i><span>微星小飞机</span></a>
+      <a href="https://www.pccooler.cn/software/" target="_blank" class="nav-card glass"><i class="fa fa-desktop"></i><span>超频3屏驱动</span></a>
+      <a href="https://myth.cool/cn/" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>Myth.Cool</span></a>
+      <a href="https://lianli-cn.com/lconnect3" target="_blank" class="nav-card glass"><i class="fa fa-cogs"></i><span>联力控制器</span></a>
+      <a href="https://thermalright.com.cn/downloads" target="_blank" class="nav-card glass"><i class="fa fa-tint"></i><span>利民水冷驱动</span></a>
+      <a href="https://cn.tryxzone.com/downloads/" target="_blank" class="nav-card glass"><i class="fa fa-microchip"></i><span>TRYX创氪星系</span></a>
+      <a href="https://www.bilibili.com/" target="_blank" class="nav-card glass"><i class="fa fa-video-camera"></i><span>B站</span></a>
+    </div>
+  </div>
+  <div class="sys-modal" id="sysModal">
+    <div class="modal-content">
+      <h3 class="modal-title">重装系统服务</h3>
+      <div class="modal-wechat">重装系统联系微信:CFos1847</div>
+      <button class="close-modal" id="closeModal">关闭</button>
+    </div>
+  </div>
+  <div class="footer">
+    <label class="bg-change-btn glass"><i class="fa fa-image"></i><span>更换背景</span><input type="file" id="bgUpload" accept="image/*"></label>
+    <div class="copyright">© 2025 简约起始页 | 驱动&常用链接版</div>
+  </div>
+
+  <script>
+    // 核心防护：禁用右键/F12/检查元素
+    document.addEventListener('contextmenu',e=>e.preventDefault());
+    document.addEventListener('keydown',e=>{
+      if((e.key==='F12')||(e.ctrlKey&&e.shiftKey&&e.key==='I')||(e.ctrlKey&&e.key==='u')){e.preventDefault();}
+    });
+    // 检测开发者工具打开
+    (function(){
+      const d=document.createElement('div');
+      d.id='devtool-detector';
+      d.style.position='absolute';
+      d.style.width='100px';
+      d.style.height='100px';
+      d.style.opacity='0';
+      document.body.appendChild(d);
+      setInterval(()=>{
+        const rect=d.getBoundingClientRect();
+        if(rect.width>100||rect.height>100){
+          document.body.innerHTML='<div style="width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:#1a1a1a;color:#fff;font-size:20px;">检测到开发者工具，请关闭后刷新页面！</div>';
+        }
+      },1000);
+    })();
+
+    // 原有功能逻辑（已压缩混淆变量名）
+    function t(){const e=new Date(),n=String(e.getHours()).padStart(2,'0'),o=String(e.getMinutes()).padStart(2,'0'),s=String(e.getSeconds()).padStart(2,'0');document.getElementById('time').textContent=`${n}:${o}:${s}`;}t();setInterval(t,1000);
+    const e=document.getElementById('engineBtn'),n=document.getElementById('engineDropdown'),o=document.querySelectorAll('.engine-option');let s='https://www.baidu.com/s?wd=';
+    e.addEventListener('click',t=>{t.stopPropagation();n.style.display=n.style.display==='block'?'none':'block';});
+    document.addEventListener('click',()=>{n.style.display='none';});
+    o.forEach(t=>{t.addEventListener('click',()=>{const e=t.dataset.name;s=t.dataset.url;e.innerHTML=`<span>${e}</span><i class="fa fa-chevron-down"></i>`;n.style.display='none';});});
+    document.addEventListener('keydown',t=>{if(t.altKey){t.key==='1'&&o[0].click();t.key==='2'&&o[1].click();}});
+    const i=document.getElementById('searchInput'),r=document.getElementById('searchBtn'),l=document.querySelector('.search-bar');
+    function d(){const t=i.value.trim();t&&(window.open(s+encodeURIComponent(t),'_blank'),i.value='');}
+    r.addEventListener('click',d);
+    i.addEventListener('keydown',t=>{t.key==='Enter'&&d();});
+    i.addEventListener('focus',()=>{document.body.classList.add('search-focus');l.style.background='rgba(255, 255, 255, 0.18)';});
+    i.addEventListener('blur',()=>{document.body.classList.remove('search-focus');l.style.background='rgba(255, 255, 255, 0.12)';});
+    const c=document.getElementById('bgUpload'),a=document.getElementById('bg');
+    window.addEventListener('load',()=>{const t=localStorage.getItem('customBg');t&&(a.style.backgroundImage=`url(${t})`);});
+    c.addEventListener('change',t=>{const n=t.target.files[0];if(n&&n.type.startsWith('image/')){const o=new FileReader();o.onload=t=>{const n=t.target.result;a.style.backgroundImage=`url(${n})`;localStorage.setItem('customBg',n);};o.readAsDataURL(n);}});
+    const u=document.getElementById('moreToggle'),m=document.getElementById('moreNavGrid'),g=document.getElementById('moreIcon');
+    u.addEventListener('click',()=>{m.classList.toggle('show');if(m.classList.contains('show')){g.classList.remove('fa-plus');g.classList.add('fa-minus');u.querySelector('span').textContent='收起链接';}else{g.classList.remove('fa-minus');g.classList.add('fa-plus');u.querySelector('span').textContent='更多链接';}});
+    const b=document.getElementById('sysRepairCard'),p=document.getElementById('sysModal'),h=document.getElementById('closeModal');
+    b.addEventListener('click',()=>{p.classList.add('show');});
+    h.addEventListener('click',()=>{p.classList.remove('show');});
+    p.addEventListener('click',t=>{t.target===p&&p.classList.remove('show');});
+    document.addEventListener('keydown',t=>{t.key==='Escape'&&p.classList.contains('show')&&p.classList.remove('show');});
+  </script>
+</body>
+</html>
