@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>秋木科技</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.12);
+      --glass-border: rgba(255,255,255,0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(31,38,135,0.25);
+      --text-primary: #fff;
+      --text-secondary: rgba(255,255,255,0.65);
+      --text-link: #93c5fd;
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --radius-pill: 50px;
+      --transition-smooth: 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior: smooth; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.25);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 40px;
+      line-height: 1.5;
+      transition: background 0.8s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body.dark-mode {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    }
+
+    #bgCanvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .container { max-width:1400px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+    header {
+      position: sticky; top:0; z-index:100; padding:10px 0;
+      background: rgba(102,126,234,0.35);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.5s, box-shadow 0.3s;
+    }
+    header.scrolled {
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      background: rgba(102,126,234,0.55);
+    }
+    body.dark-mode header { background: rgba(15,12,41,0.6); }
+    body.dark-mode header.scrolled { background: rgba(15,12,41,0.85); }
+    .header-inner {
+      display:flex; align-items:center; justify-content:space-between; height:52px;
+    }
+    .logo-area {
+      display:flex; align-items:center; gap:12px;
+      font-size:20px; font-weight:700; letter-spacing:0.5px; flex-shrink:0;
+    }
+    .logo-icon {
+      width:38px; height:38px; border-radius:10px;
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 4px 14px rgba(244,114,182,0.45);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .logo-icon:hover { transform: scale(1.08) rotate(-5deg); box-shadow: 0 6px 20px rgba(244,114,182,0.6); }
+    .logo-icon i { color:#fff; font-size:17px; }
+
+    .header-right { display:flex; align-items:center; gap:10px; }
+    .header-clock {
+      font-size:14px; font-weight:600; opacity:0.85;
+      letter-spacing:0.5px; font-variant-numeric:tabular-nums;
+      user-select:none;
+    }
+    .theme-toggle {
+      width:38px; height:38px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.3s;
+      background:rgba(255,255,255,0.15); border:none;
+      color:#fef08a; font-size:17px; flex-shrink:0;
+    }
+    .theme-toggle:hover { background:rgba(255,255,255,0.3); transform:scale(1.1) rotate(15deg); }
+
+    .search-section {
+      padding:36px 0 10px;
+      text-align:center;
+    }
+    .search-section-label {
+      font-size:12px; color:var(--text-secondary); margin-bottom:14px;
+      font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.7;
+    }
+    .search-row {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      max-width:680px; margin:0 auto;
+      background:rgba(255,255,255,0.1);
+      border-radius:var(--radius-pill);
+      padding:5px; border:1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+    }
+    .engine-btn {
+      height:40px; padding:0 16px; border-radius:var(--radius-pill);
+      background:transparent; border:none;
+      color:rgba(255,255,255,0.7); font-size:13px; font-weight:600; cursor:pointer;
+      white-space:nowrap; transition:all 0.25s; flex-shrink:0;
+      position:relative;
+    }
+    .engine-btn:hover { color:#fff; }
+    .engine-btn.active {
+      background:#fff; color:#4b5563;
+      box-shadow:0 2px 12px rgba(0,0,0,0.12);
+    }
+    .search-input {
+      flex:1; height:40px; border-radius:var(--radius-pill); min-width:0;
+      border:none; background:transparent;
+      padding:0 12px; color:#fff; font-size:14px; transition:all 0.3s;
+    }
+    .search-input::placeholder { color:rgba(255,255,255,0.4); }
+    .search-input:focus { outline:none; }
+    .search-go {
+      width:40px; height:40px; border-radius:50%;
+      background:linear-gradient(135deg, #667eea, #764ba2);
+      border:none; color:#fff; font-size:14px; cursor:pointer; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.25s; box-shadow:0 2px 10px rgba(102,126,234,0.4);
+    }
+    .search-go:hover { transform:scale(1.08); box-shadow:0 4px 16px rgba(102,126,234,0.55); }
+
+    .hero { text-align:center; padding:24px 0 28px; }
+    .hero h1 {
+      font-size:38px; font-weight:800; margin-bottom:8px;
+      background: linear-gradient(135deg, #fff 0%, #e0e7ff 50%, #c4b5fd 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      line-height:1.2;
+    }
+    .hero p { font-size:15px; color:var(--text-secondary); max-width:500px; margin:0 auto; font-weight:300; }
+    .hero .link-count {
+      display:inline-block; margin-top:10px;
+      padding:4px 14px; border-radius:20px;
+      background:rgba(255,255,255,0.15); font-size:12px; color:var(--text-secondary);
+      border:1px solid rgba(255,255,255,0.1);
+    }
+
+    .filter-section { margin-bottom:22px; }
+    .filter-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .filter-bar {
+      display:flex; gap:8px; padding:6px 8px;
+      border-radius:var(--radius-lg); overflow-x:auto;
+      scrollbar-width:none; flex:1;
+    }
+    .filter-bar::-webkit-scrollbar { display:none; }
+    .filter-btn {
+      display:flex; align-items:center; gap:6px;
+      padding:8px 16px; border-radius:var(--radius-md);
+      background:rgba(255,255,255,0.08); color:var(--text-primary);
+      border:1px solid transparent; cursor:pointer;
+      white-space:nowrap; font-size:13px; font-weight:500;
+      transition:all 0.25s; position:relative;
+    }
+    .filter-btn:hover { background:rgba(255,255,255,0.2); transform:translateY(-1px); }
+    .filter-btn.active {
+      background:rgba(255,255,255,0.95); color:#4b5563;
+      box-shadow:0 4px 16px rgba(0,0,0,0.12); font-weight:600;
+    }
+    .filter-btn i { font-size:13px; }
+    .filter-count {
+      font-size:10px; background:rgba(255,255,255,0.2);
+      padding:1px 6px; border-radius:10px; font-weight:600;
+    }
+    .filter-btn.active .filter-count { background:rgba(0,0,0,0.1); }
+
+
+    .grid-container {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));
+      gap:18px;
+      perspective:1000px;
+    }
+
+    .card {
+      position:relative; border-radius:var(--radius-lg); padding:22px 16px 18px;
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      transition: transform 0.15s ease-out, box-shadow 0.35s, border-color 0.35s;
+      cursor:pointer; overflow:hidden; text-decoration:none; color:inherit;
+      transform-style: preserve-3d;
+    }
+    .card::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 60%);
+      pointer-events:none; z-index:0;
+    }
+    .card::after {
+      content:''; position:absolute; inset:0; z-index:-1;
+      background:radial-gradient(circle at center, var(--card-glow, transparent) 0%, transparent 70%);
+      opacity:0; transition:opacity 0.4s;
+    }
+    .card:hover::after { opacity:0.35; }
+    .card:hover {
+      z-index:5;
+      box-shadow:0 20px 40px rgba(0,0,0,0.2), 0 0 80px rgba(var(--glow-rgb, 255,255,255), 0.08);
+      border-color:rgba(255,255,255,0.45);
+      background:rgba(255,255,255,0.22);
+    }
+    .badge {
+      position:absolute; top:12px; right:12px; z-index:3;
+      font-size:10px; padding:3px 10px; border-radius:20px;
+      font-weight:700; color:#fff; letter-spacing:0.5px;
+      backdrop-filter:blur(4px);
+    }
+    .badge-hot { background:#ef4444; box-shadow:0 2px 10px rgba(239,68,68,0.5); animation:pulse-badge 2s infinite; }
+    .badge-new { background:#3b82f6; box-shadow:0 2px 10px rgba(59,130,246,0.5); }
+    .badge-rec { background:#10b981; box-shadow:0 2px 10px rgba(16,185,129,0.5); }
+    @keyframes pulse-badge {
+      0%,100% { transform:scale(1); }
+      50% { transform:scale(1.08); }
+    }
+    .icon-wrapper {
+      width:64px; height:64px; border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:12px; transition:transform 0.35s, box-shadow 0.35s;
+      position:relative; z-index:1;
+    }
+    .card:hover .icon-wrapper {
+      transform:scale(1.1) translateZ(20px);
+      box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    }
+    .icon-wrapper i { font-size:28px; color:#fff; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+    .card-title {
+      font-size:15px; font-weight:700; margin-bottom:4px; color:#fff;
+      position:relative; z-index:1;
+    }
+    .card-desc {
+      font-size:11px; color:var(--text-secondary); margin-bottom:12px;
+      line-height:1.5; position:relative; z-index:1;
+    }
+    .card-action {
+      font-size:12px; color:var(--text-link); text-decoration:none;
+      display:flex; align-items:center; gap:5px; font-weight:500;
+      opacity:0.7; transition:all 0.25s; position:relative; z-index:1;
+    }
+    .card:hover .card-action { opacity:1; color:#fff; }
+    .card-action i { transition:transform 0.3s; }
+    .card:hover .card-action i { transform:translateX(3px); }
+
+    .empty-state { text-align:center; padding:64px 0; grid-column:1/-1; }
+    .empty-state i { font-size:52px; color:var(--text-secondary); margin-bottom:14px; display:block; opacity:0.5; }
+    .empty-state p { color:var(--text-secondary); font-size:15px; }
+
+    footer {
+      text-align:center; padding:32px 0 16px;
+      color:var(--text-secondary); font-size:12px;
+      border-top:1px solid rgba(255,255,255,0.08); margin-top:32px;
+    }
+    footer .footer-brand { font-weight:700; font-size:13px; margin-bottom:4px; }
+
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .card.visible { animation:fadeInUp 0.45s ease both; }
+
+    @media(max-width:768px) {
+      .search-row { gap:3px; padding:4px; flex-wrap:wrap; }
+      .engine-btn { height:34px; padding:0 10px; font-size:11px; }
+      .search-input { height:34px; font-size:13px; }
+      .search-go { width:34px; height:34px; font-size:12px; }
+      .hero h1 { font-size:26px; }
+      .hero { padding:16px 0 18px; }
+      .hero p { font-size:13px; }
+      .grid-container { grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+      .card { padding:14px 10px 12px; border-radius:18px; }
+      .icon-wrapper { width:48px; height:48px; border-radius:13px; margin-bottom:8px; }
+      .icon-wrapper i { font-size:22px; }
+      .card-title { font-size:13px; }
+      .card-desc { font-size:10px; margin-bottom:8px; }
+      .badge { font-size:9px; padding:2px 7px; top:8px; right:8px; }
+      .filter-btn { padding:6px 10px; font-size:11px; }
+
+      .header-clock { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <header id="siteHeader">
+    <div class="container header-inner">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fa-solid fa-download"></i></div>
+        <span>秋木科技</span>
+      </div>
+      <div class="header-right">
+        <span class="header-clock" id="headerClock"></span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="切换深色模式">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="search-section">
+      <div class="search-section-label">· 万能搜索 ·</div>
+      <div class="search-row">
+        <button class="engine-btn active" data-engine="baidu" onclick="setEngine(this)"><i class="fa-solid fa-b"></i>&nbsp;百度</button>
+        <button class="engine-btn" data-engine="bing" onclick="setEngine(this)"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;必应</button>
+        <button class="engine-btn" data-engine="google" onclick="setEngine(this)"><i class="fa-brands fa-google"></i>&nbsp;谷歌</button>
+        <input id="engineInput" type="text" class="search-input" placeholder="搜点什么..." onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="search-go" onclick="doSearch()" title="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </section>
+
+    <section class="hero">
+      <h1>找软件，来这里 ⚡</h1>
+      <p>点击跳转官方下载页面，自行选择版本下载</p>
+      <span class="link-count" id="linkCount">共 0 个链接</span>
+    </section>
+
+    <nav class="filter-section">
+      <div class="filter-row">
+        <div class="glass filter-bar" id="filterBar"></div>
+
+      </div>
+    </nav>
+
+    <section class="grid-container" id="grid"></section>
+  </main>
+
+  <footer class="container">
+    <div class="footer-brand">秋木科技</div>
+    <p>所有链接均指向官方下载页面 · 安全放心使用</p>
+  </footer>
+
+  <script>
+  const DATA = [
+    {name:"Steam",desc:"全球最大PC游戏平台",cat:"game",icon:"fa-brands fa-steam",bg:"#1b2838",url:"https://store.steampowered.com/about/",badge:"hot"},
+    {name:"WeGame",desc:"腾讯游戏平台",cat:"game",icon:"fa-solid fa-gamepad",bg:"#f5a623",url:"https://www.wegame.com.cn/",badge:""},
+    {name:"Epic Games",desc:"每周免费游戏领取",cat:"game",icon:"fa-solid fa-rocket",bg:"#2a2a2a",url:"https://store.epicgames.com/",badge:"rec"},
+    {name:"EA App",desc:"EA旗下游戏平台",cat:"game",icon:"fa-solid fa-e",bg:"#f56c2d",url:"https://www.ea.com/ea-app",badge:""},
+    {name:"Battle.net",desc:"暴雪游戏平台",cat:"game",icon:"fa-solid fa-bolt",bg:"#009ae4",url:"https://www.blizzard.com/",badge:""},
+    {name:"原神",desc:"米哈游开放世界",cat:"game",icon:"fa-solid fa-star",bg:"#d4a017",url:"https://ys.mihoyo.com/download/",badge:"hot"},
+    {name:"微信",desc:"腾讯社交通讯",cat:"social",icon:"fa-brands fa-weixin",bg:"#07c160",url:"https://weixin.qq.com/",badge:"hot"},
+    {name:"QQ",desc:"腾讯即时通讯",cat:"social",icon:"fa-brands fa-qq",bg:"#12b7f5",url:"https://im.qq.com/pcqq/index.shtml",badge:"hot"},
+    {name:"钉钉",desc:"阿里办公协作",cat:"social",icon:"fa-solid fa-d",bg:"#0052d9",url:"https://www.dingtalk.com/",badge:""},
+    {name:"飞书",desc:"字节跳动协作平台",cat:"social",icon:"fa-solid fa-paper-plane",bg:"#3370ff",url:"https://www.feishu.cn/",badge:""},
+    {name:"企业微信",desc:"企业办公通讯",cat:"social",icon:"fa-brands fa-weixin",bg:"#2bad13",url:"https://work.weixin.qq.com/",badge:""},
+    {name:"Discord",desc:"游戏语音社区",cat:"social",icon:"fa-brands fa-discord",bg:"#5865f2",url:"https://discord.com/download",badge:""},
+    {name:"Chrome",desc:"谷歌浏览器",cat:"browser",icon:"fa-brands fa-chrome",bg:"#4285f4",url:"https://www.google.cn/chrome/",badge:"rec"},
+    {name:"Edge",desc:"微软Chromium浏览器",cat:"browser",icon:"fa-brands fa-edge",bg:"#0078d4",url:"https://www.microsoft.com/edge",badge:""},
+{name:"WPS Office",desc:"金山办公套件",cat:"office",icon:"fa-solid fa-w",bg:"#d4382c",url:"https://www.wps.cn/",badge:"rec"},
+    {name:"Office",desc:"微软Office套件",cat:"office",icon:"fa-brands fa-microsoft",bg:"#d83b01",url:"https://www.office.com/",badge:""},
+    {name:"哔哩哔哩",desc:"视频弹幕网站",cat:"media",icon:"fa-brands fa-bilibili",bg:"#fb7299",url:"https://www.bilibili.com/",badge:"hot"},
+    {name:"网易云音乐",desc:"音乐播放平台",cat:"media",icon:"fa-solid fa-cloud",bg:"#c20c0c",url:"https://music.163.com/",badge:""},
+    {name:"QQ音乐",desc:"腾讯音乐平台",cat:"media",icon:"fa-solid fa-music",bg:"#31c27c",url:"https://y.qq.com/",badge:""},
+    {name:"PotPlayer",desc:"本地视频播放器",cat:"media",icon:"fa-solid fa-play",bg:"#1a1a2e",url:"https://potplayer.daum.net/",badge:"rec"},
+    {name:"OBS",desc:"直播录屏神器",cat:"media",icon:"fa-solid fa-video",bg:"#302e31",url:"https://obsproject.com/",badge:"rec"},
+    {name:"抖音",desc:"短视频社交平台",cat:"media",icon:"fa-brands fa-tiktok",bg:"#161823",url:"https://www.douyin.com/",badge:"hot"},
+    {name:"YY语音",desc:"游戏语音开黑工具",cat:"media",icon:"fa-solid fa-microphone",bg:"#ffcc00",url:"https://www.yy.com/",badge:""},
+    {name:"7-Zip",desc:"开源压缩解压",cat:"sys",icon:"fa-solid fa-box-archive",bg:"#4a90d9",url:"https://www.7-zip.org/",badge:"rec"},
+    {name:"迅雷",desc:"下载加速工具",cat:"sys",icon:"fa-solid fa-bolt-lightning",bg:"#2196f3",url:"https://www.xunlei.com/",badge:""},
+    {name:"IDM",desc:"多线程下载工具",cat:"sys",icon:"fa-solid fa-arrow-down",bg:"#0e8a4f",url:"https://www.internetdownloadmanager.com/",badge:""},
+    {name:"Everything",desc:"秒搜本地文件",cat:"sys",icon:"fa-solid fa-magnifying-glass-location",bg:"#ff6600",url:"https://www.voidtools.com/",badge:"rec"},
+    {name:"ToDesk",desc:"远程控制软件",cat:"sys",icon:"fa-solid fa-desktop",bg:"#3b6fff",url:"https://www.todesk.com/",badge:""},
+    {name:"工具",desc:"Windows能用上的小工具",cat:"sys",icon:"fa-solid fa-screwdriver-wrench",bg:"#20b2aa",url:"https://s20.fnnas.net/s/edca40788ee3418ab6",badge:"new"},
+    {name:"火绒安全",desc:"轻量安全防护",cat:"sec",icon:"fa-solid fa-fire",bg:"#e74c3c",url:"https://www.huorong.cn/",badge:"rec"},
+    {name:"N卡驱动",desc:"NVIDIA显卡驱动",cat:"driver",icon:"fa-solid fa-microchip",bg:"#76b900",url:"https://www.nvidia.cn/Download/index.aspx?lang=cn",badge:""},
+    {name:"AMD驱动",desc:"AMD显卡驱动",cat:"driver",icon:"fa-solid fa-microchip",bg:"#ed1c24",url:"https://www.amd.com/zh-cn/support/download/drivers.html",badge:""},
+    {name:"华硕驱动",desc:"华硕主板/显卡驱动",cat:"driver",icon:"fa-solid fa-motherboard",bg:"#1a1a6c",url:"https://www.asus.com.cn/support/Download-Center/",badge:""},
+    {name:"微星驱动",desc:"微星主板/显卡驱动",cat:"driver",icon:"fa-solid fa-microchip",bg:"#c3002f",url:"https://www.msi.cn/support/download/",badge:""},
+    {name:"技嘉GCC",desc:"技嘉主板控制中心",cat:"driver",icon:"fa-solid fa-sliders",bg:"#f58220",url:"https://www.gigabyte.cn/Consumer/Software/GIGABYTE-Control-Center/",badge:""},
+    {name:"罗技驱动",desc:"Logitech G HUB",cat:"driver",icon:"fa-solid fa-computer-mouse",bg:"#00b8fc",url:"https://www.logitechg.com/zh-cn/software/ghub",badge:""},
+    {name:"雷蛇驱动",desc:"雷蛇雷云4 Synapse",cat:"driver",icon:"fa-solid fa-computer-mouse",bg:"#00ff00",url:"https://cn.razerzone.com/synapse-4",badge:""},
+    {name:"飓风耳机",desc:"HyperX NGENUITY",cat:"driver",icon:"fa-solid fa-headphones",bg:"#e74c3c",url:"https://hyperx.com/pages/ngenuity",badge:""},
+    {name:"联力控制器",desc:"联力L-Connect软件",cat:"driver",icon:"fa-solid fa-fan",bg:"#333",url:"https://lianli-cn.com/lconnect3",badge:""},
+    {name:"超频三驱动",desc:"超频3水冷屏幕驱动",cat:"driver",icon:"fa-solid fa-display",bg:"#00a0e9",url:"https://www.pccooler.cn/software/",badge:""},
+    {name:"利民水冷",desc:"利民水冷驱动",cat:"driver",icon:"fa-solid fa-snowflake",bg:"#0077b6",url:"https://thermalright.com.cn/downloads",badge:""},
+    {name:"瓦尔基里",desc:"Valkyrie Myth.Cool",cat:"driver",icon:"fa-solid fa-wind",bg:"#6c5ce7",url:"https://myth.cool/cn/",badge:""},
+    {name:"创氪星系",desc:"创氪星系驱动下载",cat:"driver",icon:"fa-solid fa-circle-nodes",bg:"#00b4d8",url:"https://www.tryxzone.com.cn/support/downloads",badge:""},
+    {name:"戴尔驱动",desc:"戴尔笔记本/台式机驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#007db8",url:"https://www.dell.com/support/home/zh-cn",badge:""},
+    {name:"联想驱动",desc:"联想笔记本/台式机驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#e2231a",url:"https://newsupport.lenovo.com.cn/",badge:""},
+    {name:"惠普驱动",desc:"惠普笔记本/台式机驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#0096d6",url:"https://support.hp.com/cn-zh/drivers",badge:""},
+    {name:"七彩虹驱动",desc:"七彩虹主板/显卡驱动",cat:"driver",icon:"fa-solid fa-microchip",bg:"#e60012",url:"https://www.colorful.cn/home/download",badge:""},
+    {name:"华为管家",desc:"华为电脑管家",cat:"driver",icon:"fa-solid fa-laptop",bg:"#cf0a2c",url:"https://consumer.huawei.com/cn/support/pc-manager/",badge:""},
+    {name:"小米笔记本驱动",desc:"小米笔记本驱动下载",cat:"driver",icon:"fa-solid fa-laptop",bg:"#ff6900",url:"https://www.mi.com/service/notebook/drivers",badge:""},
+    {name:"机械革命驱动",desc:"机械革命笔记本驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#1a1a2e",url:"https://www.mechrevo.com/cn/downloads",badge:""},
+    {name:"LegionZone",desc:"联想拯救者控制中心",cat:"driver",icon:"fa-solid fa-gamepad",bg:"#1a1a2e",url:"https://legionzone.lenovo.com/",badge:""},
+    {name:"雷神笔记本驱动",desc:"雷神游戏本驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#00b4d8",url:"https://www.thunderobot.com/service/",badge:""},
+    {name:"火影笔记本驱动",desc:"火影游戏本驱动",cat:"driver",icon:"fa-solid fa-laptop",bg:"#e74c3c",url:"https://www.firebat.com.cn/index/serve/drive",badge:""},
+    {name:"iGameCenter",desc:"七彩虹iGame控制中心",cat:"driver",icon:"fa-solid fa-gauge-high",bg:"#e60012",url:"https://www.colorful.cn/iGameCenter",badge:""},
+  ];
+
+  const CATS = [
+    {key:"all",label:"全部",icon:"fa-solid fa-border-all"},
+    {key:"game",label:"游戏平台",icon:"fa-solid fa-gamepad"},
+    {key:"social",label:"社交通讯",icon:"fa-solid fa-comments"},
+    {key:"browser",label:"浏览器",icon:"fa-solid fa-globe"},
+    {key:"office",label:"办公效率",icon:"fa-solid fa-briefcase"},
+    {key:"media",label:"影音娱乐",icon:"fa-solid fa-photo-film"},
+    {key:"sys",label:"系统工具",icon:"fa-solid fa-screwdriver-wrench"},
+    {key:"sec",label:"安全软件",icon:"fa-solid fa-shield-halved"},
+    {key:"driver",label:"驱动下载",icon:"fa-solid fa-microchip"},
+    {key:"reinstall",label:"重装系统",icon:"fa-solid fa-rotate"},
+  ];
+
+  const FEATURED = ["Steam","WeGame","QQ","微信","QQ音乐","网易云音乐","抖音","YY语音","N卡驱动","AMD驱动","罗技驱动","雷蛇驱动","ToDesk","飓风耳机","火绒安全","OBS","Chrome","Edge","7-Zip"];
+
+  const ENGINES = {
+    baidu: "https://www.baidu.com/s?wd=",
+    bing: "https://www.bing.com/search?q=",
+    google: "https://www.google.com/search?q=",
+  };
+  let curEngine = "baidu";
+  let curCat = "all";
+
+  (function(){
+    document.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'F12') { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) {
+        e.preventDefault(); return false;
+      }
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.key === 'S' || e.key === 's')) { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) { e.preventDefault(); return false; }
+    }, true);
+
+    var _warnShown = false;
+    setInterval(function(){
+      var t0 = performance.now();
+      debugger;
+      var t1 = performance.now();
+      if (t1 - t0 > 120 && !_warnShown) {
+        _warnShown = true;
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;font-family:sans-serif;flex-direction:column;gap:20px;text-align:center;padding:40px;"><i class="fa-solid fa-shield-halved" style="font-size:56px;color:#fbbf24;"></i><h2 style="font-weight:700;">安全提醒</h2><p style="color:rgba(255,255,255,0.6);font-size:16px;">请关闭开发者工具后刷新页面</p></div>';
+      }
+    }, 800);
+
+    setInterval(function(){
+      if (typeof console.clear === 'function') console.clear();
+      console.log('%c⚠️ 警告', 'color:#ef4444;font-size:36px;font-weight:bold;');
+      console.log('%c请勿在此执行任何代码', 'color:#fbbf24;font-size:16px;');
+    }, 3000);
+  })();
+
+  (function(){
+    var canvas = document.getElementById('bgCanvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var PARTICLE_COUNT = 35;
+    var mouseX = -999, mouseY = -999;
+    var darkMode = false;
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    var lightColors = ['#8baeee','#a78bfa','#c4b5fd','#f9a8d4','#93c5fd','#e0e7ff'];
+    var darkColors  = ['#6d28d9','#4c1d95','#312e81','#1e1b4b','#4338ca','#3730a3'];
+
+    function Particle(){
+      this.reset();
+    }
+    Particle.prototype.reset = function(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 90 + 25;
+      this.speedX = (Math.random() - 0.5) * 0.25;
+      this.speedY = (Math.random() - 0.5) * 0.25;
+      this.opacity = Math.random() * 0.12 + 0.03;
+      this.color = darkMode
+        ? darkColors[Math.floor(Math.random() * darkColors.length)]
+        : lightColors[Math.floor(Math.random() * lightColors.length)];
+    };
+    Particle.prototype.update = function(){
+      if (mouseX > -999){
+        var dx = mouseX - this.x;
+        var dy = mouseY - this.y;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 250 && dist > 1){
+          this.x -= (dx/dist) * (1 - dist/250) * 0.4;
+          this.y -= (dy/dist) * (1 - dist/250) * 0.4;
+        }
+      }
+      this.x += this.speedX;
+      this.y += this.speedY;
+      var margin = 120;
+      if (this.x < -margin || this.x > canvas.width + margin ||
+          this.y < -margin || this.y > canvas.height + margin){
+        this.reset();
+      }
+    };
+    Particle.prototype.draw = function(){
+      ctx.beginPath();
+      var grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+      grad.addColorStop(0, this.color);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = this.opacity;
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    };
+
+    for (var i = 0; i < PARTICLE_COUNT; i++){ particles.push(new Particle()); }
+
+    document.addEventListener('mousemove', function(e){ mouseX = e.clientX; mouseY = e.clientY; });
+    document.addEventListener('mouseleave', function(){ mouseX = -999; mouseY = -999; });
+
+    function animate(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < particles.length; i++){
+        particles[i].update();
+        particles[i].draw();
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window._bgSetDark = function(d){
+      darkMode = d;
+      for (var i = 0; i < particles.length; i++){
+        particles[i].color = darkMode
+          ? darkColors[Math.floor(Math.random() * darkColors.length)]
+          : lightColors[Math.floor(Math.random() * lightColors.length)];
+      }
+    };
+  })();
+
+  (function(){
+    var el = document.getElementById('headerClock');
+    function tick(){
+      var now = new Date();
+      var h = now.getHours().toString().padStart(2,'0');
+      var m = now.getMinutes().toString().padStart(2,'0');
+      el.textContent = h + ':' + m;
+    }
+    tick();
+    setInterval(tick, 30000);
+  })();
+
+  (function(){
+    var header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', function(){
+      header.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  })();
+
+  function setEngine(btn){
+    curEngine = btn.dataset.engine;
+    document.querySelectorAll('.engine-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('engineInput').focus();
+  }
+
+  function doSearch(){
+    var q = document.getElementById('engineInput').value.trim();
+    if (!q) return;
+    window.open(ENGINES[curEngine] + encodeURIComponent(q), '_blank');
+  }
+
+  function init(){
+    renderFilters();
+    doFilter();
+    updateLinkCount();
+  }
+
+  function getCount(catKey){
+    return DATA.filter(function(d){ return d.cat === catKey; }).length;
+  }
+
+  function renderFilters(){
+    var bar = document.getElementById('filterBar');
+    bar.innerHTML = CATS.map(function(c){
+      var count = '';
+      if (c.key !== 'all' && c.key !== 'reinstall'){
+        count = '<span class="filter-count">' + getCount(c.key) + '</span>';
+      }
+      return '<button class="filter-btn' + (c.key==='all'?' active':'') + '" onclick="setCat(\'' + c.key + '\',this)"><i class="' + c.icon + '"></i>' + c.label + count + '</button>';
+    }).join('');
+  }
+
+  function setCat(key, btn){
+    curCat = key;
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    doFilter();
+  }
+
+  function doFilter(){
+    var list;
+    if (curCat === 'all'){
+      list = FEATURED.map(function(n){ return DATA.find(function(d){ return d.name === n; }); }).filter(Boolean);
+    } else if (curCat === 'reinstall'){
+      renderReinstall();
+      return;
+    } else {
+      list = DATA.filter(function(d){ return d.cat === curCat; });
+    }
+    renderCards(list);
+  }
+
+  function renderCards(list){
+    var grid = document.getElementById('grid');
+    if (!list) list = FEATURED.map(function(n){ return DATA.find(function(d){ return d.name === n; }); }).filter(Boolean);
+    if (list.length === 0){
+      grid.innerHTML = '<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>没有找到匹配的软件</p></div>';
+      return;
+    }
+    grid.innerHTML = list.map(function(d, i){
+      var badgeHtml = '';
+      if (d.badge === 'hot') badgeHtml = '<span class="badge badge-hot">🔥热门</span>';
+      else if (d.badge === 'new') badgeHtml = '<span class="badge badge-new">✨推荐</span>';
+      else if (d.badge === 'rec') badgeHtml = '<span class="badge badge-rec">⭐推荐</span>';
+
+      var r = parseInt(d.bg.slice(1,3), 16);
+      var g = parseInt(d.bg.slice(3,5), 16);
+      var b = parseInt(d.bg.slice(5,7), 16);
+
+      return '<a href="' + d.url + '" target="_blank" rel="noopener" class="glass card visible" style="--card-glow:' + d.bg + ';--glow-rgb:' + r + ',' + g + ',' + b + ';animation-delay:' + (i*35) + 'ms">' +
+        badgeHtml +
+        '<div class="icon-wrapper" style="background:' + d.bg + '"><i class="' + d.icon + '"></i></div>' +
+        '<h3 class="card-title">' + d.name + '</h3>' +
+        '<p class="card-desc">' + d.desc + '</p>' +
+        '<span class="card-action">访问下载 <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></span>' +
+      '</a>';
+    }).join('');
+
+    attachTilt();
+  }
+
+  function renderReinstall(){
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '<div class="glass card" style="grid-column:1/-1;max-width:460px;margin:0 auto;justify-self:center;cursor:default;">' +
+      '<div class="icon-wrapper" style="background:#07c160;width:80px;height:80px;border-radius:20px;">' +
+        '<i class="fa-brands fa-weixin" style="font-size:38px;"></i>' +
+      '</div>' +
+      '<h3 class="card-title" style="font-size:18px;margin-bottom:4px;">需要重装系统？</h3>' +
+      '<p class="card-desc" style="font-size:13px;margin-bottom:16px;">添加下方微信，远程帮您搞定</p>' +
+      '<div style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);">' +
+        '<i class="fa-brands fa-weixin" style="color:#07c160;font-size:18px;"></i>' +
+        '<span style="font-size:19px;font-weight:700;letter-spacing:1px;color:#fff;user-select:all;">CFos1847</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function attachTilt(){
+    var cards = document.querySelectorAll('.card');
+    for (var i = 0; i < cards.length; i++){
+      (function(card){
+        card.addEventListener('mousemove', function(e){
+          var rect = card.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          var cx = rect.width / 2;
+          var cy = rect.height / 2;
+          var rotY = ((x - cx) / cx) * 8;
+          var rotX = ((cy - y) / cy) * 8;
+          card.style.transform = 'perspective(700px) rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg) translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function(){
+          card.style.transform = 'perspective(700px) rotateX(0) rotateY(0) translateY(0)';
+        });
+      })(cards[i]);
+    }
+  }
+
+  function updateLinkCount(){
+    document.getElementById('linkCount').textContent = '共 ' + DATA.length + ' 个链接';
+  }
+
+  function toggleTheme(){
+    var body = document.body;
+    body.classList.toggle('dark-mode');
+    var isDark = body.classList.contains('dark-mode');
+    localStorage.setItem('nav-theme', isDark ? 'dark' : 'light');
+    document.querySelector('.theme-toggle i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    if (typeof window._bgSetDark === 'function') window._bgSetDark(isDark);
+  }
+
+  (function(){
+    if (localStorage.getItem('nav-theme') === 'dark'){
+      document.body.classList.add('dark-mode');
+      document.querySelector('.theme-toggle i').className = 'fa-solid fa-sun';
+      if (typeof window._bgSetDark === 'function') window._bgSetDark(true);
+    }
+  })();
+
+  init();
+  </script>
+</body>
+</html>
